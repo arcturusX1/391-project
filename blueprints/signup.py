@@ -1,43 +1,42 @@
 from flask import Blueprint, flash, render_template
-
+from werkzeug.security import generate_password_hash
 from blueprints.forms import UserForm
 from model.model import User, db
 
 signup_bp = Blueprint('signup_bp', __name__)
 
-#debug 
 @signup_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
     form = UserForm()  # using flask_wtforms form object from UserForm
-    print("Form object:", form)  # Debugging statement
 
     if form.validate_on_submit():
-        print("Form validated")  # Debugging statement
+        # Retrieve form data
         username = form.username.data
-        first_name = form.first_name.data
-        last_name = form.last_name.data
-        phone = form.phone.data
         email = form.email.data
-        if form.account_type.data == 'user':
-            is_user = True
-            is_vet = False
-        elif form.account_type.data == 'vet':
-            is_user = False
-            is_vet = True
-            
-        db.session.add(User(username=username, 
-                            first_name=first_name, 
-                            last_name=last_name,
-                            phone =phone,
-                            email=email,
-                            is_user=is_user,
-                            is_vet=is_vet
-                           ))
-        db.session.commit()
+        passwd = form.pass2.data  # Confirmed password field
         
-        # Save user to the database (if required)
-        flash('User successfully created!', 'success')
+        # Hash the password
+        passwd_hash = generate_password_hash(passwd, method='pbkdf2:sha256', salt_length=5)
+        print(f"Password Hash: {passwd_hash}")  # Debugging
+
+        try:
+            # Create new user object
+            new_user = User(
+                username=username,
+                email=email,
+                passwd_hash=passwd_hash
+            )
+            # Add and commit user to the database
+            db.session.add(new_user)
+            db.session.commit()
+            
+            flash(f'User {username} successfully created!', 'success')
+            print(f'User {username} successfully created!')
+        except Exception as e:
+            db.session.rollback()  # Rollback changes in case of error
+            flash('An error occurred while creating the user. Please try again.', 'danger')
+            print("Database Error:", e)  # Log the error
     else:
-        print("Form errors:", form.errors)  # Debugging statement
+        print("Form validation failed. Errors:", form.errors)
 
     return render_template('signup.html', form=form)

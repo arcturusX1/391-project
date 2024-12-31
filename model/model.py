@@ -12,7 +12,10 @@ class User(db.Model):
     isGuide = db.Column(db.Boolean, default=False)
 
     tours = db.relationship("Tour", backref="user", lazy=True)
+    reviews = db.relationship("Review", back_populates="user", cascade="all, delete-orphan")
     guide = db.relationship("Guide", back_populates="user")
+
+
 
 
 class Guide(db.Model):
@@ -71,5 +74,7 @@ class Review(db.Model):
 
     __table_args__ = (db.PrimaryKeyConstraint("user_id", "guide_id"),)
 
-    user = db.relationship("User", backref="reviews", lazy=True)
-    guide = db.relationship("Guide", backref="reviews", lazy=True)
+    # Define relationships for back_populates
+    user = db.relationship("User", back_populates="reviews")
+    guide = db.relationship("Guide", back_populates="reviews")
+

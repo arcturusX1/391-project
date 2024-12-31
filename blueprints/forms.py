@@ -32,10 +32,9 @@ class UserForm(FlaskForm):
     pass2 = PasswordField('Confirm Password', validators=[DataRequired(),
                                                           EqualTo('pass1',
                                                                 message='Passwords do not match')])
-    account_type = SelectField('Account Type', choices=[('user', 'User'), ('vet', 'Vet')], validators=[DataRequired()])
 
     # guide fields
-    nid = StringField('NID Number', validators=[DataRequired()])
+    # nid = StringField('NID Number', validators=[DataRequired()])
 
     submit = SubmitField('Register')
 
