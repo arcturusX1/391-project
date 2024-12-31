@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import UniqueConstraint, ForeignKeyConstraint
+from flask_login import UserMixin
 
 db = SQLAlchemy()
 
@@ -10,10 +11,15 @@ class User(db.Model):
     email = db.Column(db.String(80), nullable=False, unique=True)
     passwd_hash = db.Column(db.String(120), nullable=False)
     isGuide = db.Column(db.Boolean, default=False)
+    active = db.Column(db.Boolean, default=True)
 
     tours = db.relationship("Tour", backref="user", lazy=True)
     reviews = db.relationship("Review", back_populates="user", cascade="all, delete-orphan")
     guide = db.relationship("Guide", back_populates="user")
+    
+    @property
+    def is_active(self):
+        return self.active  # Ensure user is active for log
 
 
 
