@@ -1,39 +1,32 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import UniqueConstraint
-from datetime import datetime
+from sqlalchemy import UniqueConstraint, ForeignKeyConstraint
 
 db = SQLAlchemy()
 
-class User(db.model):
+class User(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
-    username = db.Column(db.String(80), nullable = False)
-    email = db.Column(db.String(80), nullable=False)
-    passwd_hash = db.Column(db.String(120),nullable = False)
+    username = db.Column(db.String(80), nullable=False)
+    email = db.Column(db.String(80), nullable=False, unique=True)
+    passwd_hash = db.Column(db.String(120), nullable=False)
     isGuide = db.Column(db.Boolean, default=False)
 
     tours = db.relationship("Tour", backref="user", lazy=True)
     guide = db.relationship("Guide", back_populates="user")
-    
 
 
-class Guide(db.model):
+class Guide(db.Model):
     __tablename__ = "guides"
     nid = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key = True, nullalbe=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True, nullable=False)
     bio = db.Column(db.Text)
-    
-    #add review table
 
-    #relationships
-    #reviews = add reviews relationship
-    user = db.relationship("User", back_populates="guide", cascade="all, delete-orphan")
-    availability=db.relationship("Availability", back_populates="guide", cascade="all, delete-orphan")
+    reviews = db.relationship("Review", back_populates="guide", cascade="all, delete-orphan")
+    availability = db.relationship("Availability", back_populates="guide", cascade="all, delete-orphan")
+    user = db.relationship("User", back_populates="guide")
 
 
-
-
-class Tour(db.model):
+class Tour(db.Model):
     __tablename__ = "tours"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
     isPreset = db.Column(db.Boolean, default=False)
@@ -41,34 +34,42 @@ class Tour(db.model):
     end_date = db.Column(db.Date, nullable=False)
     isComplete = db.Column(db.Boolean)
 
-    #foreign keys
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, unique=True)
-    #guide ids
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     guide_nid = db.Column(db.Integer, nullable=False)
+    guide_user_id = db.Column(db.Integer, nullable=False)
 
-    #relationship def
-    user = db.relationship("User", backref="tours", lazy=True)
-    preset_tour = db.relationship("Preset_Tours", backref="tours", lazy=True)
-
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ['guide_nid', 'guide_user_id'],
+            ['guides.nid', 'guides.user_id']
+        ),
+    )
 
 
 class Preset_Tour(db.Model):
-    __tablename__="preset_tours"
-    id = db.Column(db.Integer, db.ForeingKey("tours.id"))
-    title=db.Column(db.String(80), nullable=False)
-    description=db.Column(db.Text, nullable=False)
+    __tablename__ = "preset_tours"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    tour_id = db.Column(db.Integer, db.ForeignKey("tours.id"), nullable=False)
+    title = db.Column(db.String(80), nullable=False)
+    description = db.Column(db.Text, nullable=False)
 
 
 class Availability(db.Model):
     __tablename__ = "availability"
-    guide_id = db.Column(db.Integer, db.ForeignKey("guides.id"), nullable=False)
-    tour_id = db.Column(db.Integer, db.ForeignKey("tours.id"))
-    start_date = db.Column(db.Date, nullable=False, nullable=False)
+    guide_id = db.Column(db.Integer, db.ForeignKey("guides.nid"),primary_key=True, nullable=False)
+    tour_id = db.Column(db.Integer, db.ForeignKey("tours.id"), nullable=True)
+    start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=False)
 
-    guide=db.relationship("Guide", back_populates="availability")
+    guide = db.relationship("Guide", back_populates="availability")
+
 
 class Review(db.Model):
-    __tablename__="reviews"
-    #add stuff
+    __tablename__ = "reviews"
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    guide_id = db.Column(db.Integer, db.ForeignKey("guides.nid"), nullable=False)
 
+    __table_args__ = (db.PrimaryKeyConstraint("user_id", "guide_id"),)
+
+    user = db.relationship("User", backref="reviews", lazy=True)
+    guide = db.relationship("Guide", backref="reviews", lazy=True)
