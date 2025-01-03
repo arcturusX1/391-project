@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Tours{% endblock %}
+
+
+{% block content %}
+
+<div id="tourCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+
+    <!-- Carousel Indicators -->
+
+    <div class="carousel-indicators">
+
+        {% for tour in tours %}
+
+        <button type="button" 
+
+                data-bs-target="#tourCarousel" 
+
+                data-bs-slide-to="{{ loop.index0 }}" 
+
+                class="{% if loop.first %}active{% endif %}" 
+
+                {% if loop.first %}aria-current="true"{% endif %}>
+
+        </button>
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- Carousel Inner -->
+
+    <div class="carousel-inner">
+
+        {% for tour in tours %}
+
+        <div class="carousel-item {% if loop.first %}active{% endif %}">
+
+            <img src="{{ tour.image_url }}" 
+
+                 class="d-block w-100" 
+
+                 alt="{{ tour.title }}"
+
+                 style="object-fit: cover; height: 500px;">
+
+            <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 p-3">
+
+                <h5>{{ tour.title }}</h5>
+
+                <p>{{ tour.description }}</p>
+
+                <a href="#" class="btn btn-primary">Check Availability</a>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- Controls -->
+
+    <button class="carousel-control-prev" 
+
+            type="button" 
+
+            data-bs-target="#tourCarousel" 
+
+            data-bs-slide="prev">
+
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+
+        <span class="visually-hidden">Previous</span>
+
+    </button>
+
+    <button class="carousel-control-next" 
+
+            type="button" 
+
+            data-bs-target="#tourCarousel" 
+
+            data-bs-slide="next">
+
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+
+        <span class="visually-hidden">Next</span>
+
+    </button>
+
+</div>
+
+{% endblock %}
