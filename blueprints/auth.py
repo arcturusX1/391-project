@@ -51,4 +51,4 @@ def login():
 def logout():
     session.pop('user_id', None)
     flash('You have been logged out')
-    return redirect(url_for('main.index'))
+    return redirect(url_for('tours_bp.tours'))
