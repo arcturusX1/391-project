@@ -4,7 +4,7 @@ import uuid
 
 db = SQLAlchemy()
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = "users"
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))  # Unique user ID
     username = db.Column(db.String(80), nullable=False)

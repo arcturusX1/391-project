@@ -2,8 +2,14 @@ from flask import Blueprint, request, session, redirect, url_for, render_templat
 from werkzeug.security import generate_password_hash, check_password_hash
 from model.model import db, User
 from blueprints.forms import UserForm, LoginForm
+from config import login_manager
+from flask_login import login_user, logout_user
 
 auth_bp = Blueprint('auth_bp', __name__)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
