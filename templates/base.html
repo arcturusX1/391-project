@@ -33,9 +33,9 @@
                 </ul>
                 <!-- Right-aligned buttons -->
                 <div class="d-flex">
-                    {% if session['user_id'] %}
+                    {% if current_user.is_authenticated %}
                         <!-- Show Logout Button if Logged In -->
-                        <a href="/logout" class="btn btn-outline-danger">Logout</a>
+                        <a href="{{url_for('logout')}}" class="btn btn-outline-danger">Logout</a>
                     {% else %}
                         <!-- Show Login and Sign Up Buttons if Not Logged In -->
                         <a href="/login" class="btn btn-outline-primary me-2">Login</a>
